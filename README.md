@@ -7,76 +7,109 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 1. Hardware – PCs
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
-## Algorithm
-### 1. Load the Dataset
-### 2. Preprocess the Data
-### 3. Split the Data
-### 4. Build and Train the Model
-### 5.Evaluate the Model
-### 6.Predict New Data
+## Algorithm:
+1. Initialize Parameters
+2. Compute Predictions
+3. Compute Loss
+4. Compute Gradients
+5. Update Parameters
+6. Continue the Process
+7. Evaluate and Predict the data
 
 ## Program:
-```
-import pandas as pd
-data = pd.read_csv("D:/introduction to ML/jupyter notebooks/mama/Employee.csv")
-data.head()
-```
-## output:
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/a0894abd-5425-4f4e-a8a5-afe6d8f06ab3)
-
-```
-data.info()
-data.isnull().sum()
-```
-## output:
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/2d1870be-45ae-4072-94f2-457bd3fc7f8c)
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/cecd03aa-658d-4df6-b82f-8a1ef4ea0980)
-
-```
-data['left'].value_counts()
-```
-## output:
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/e0a14a4c-97b2-40e8-a8a9-fb19c107dd82)
-```
-from sklearn.preprocessing import LabelEncoder
-le = LabelEncoder()
-data['salary'] = le.fit_transform(data['salary'])
-data.head()
-```
-## output:
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/4119b636-8467-4173-867b-a83dec66b243)
-```
-y = data['left']
-y.head()
-```
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/0f00de90-8207-4a28-ac3c-bb47057ae205)
-
-```
-from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state = 100)
-from sklearn.tree import DecisionTreeClassifier
-dt = DecisionTreeClassifier(criterion = 'entropy')
-dt.fit(x_train,y_train)
-y_predict = dt.predict(x_test)
-from sklearn import metrics
-accuracy = metrics.accuracy_score(y_test,y_predict)
-accuracy
-```
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/e1c1c5e3-9abd-4b70-ba69-af128b8e87d8)
-```
-dt.predict([[0.5,0.8,9,260,6,0,1,2]])
-```
-![image](https://github.com/arbasil05/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144218037/20d0366c-a7f9-4027-8976-733d7214b398)
-
-
-```
-/*
+```py
+'''
 Program to implement the the Logistic Regression Using Gradient Descent.
-Developed by: Meyyappan.T
-RegisterNumber:  212223240086
-*/
-```
+Developed by: Meyyappan T
+RegisterNumber:  212223040086
+'''
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
+dataset = pd.read_csv("D:/introduction to ML/jupyter notebooks/Placement_Data.csv")
+print(dataset)
+
+#dropping the serial no and salary col
+
+dataset = dataset.drop('sl_no',axis=1)
+dataset = dataset.drop('salary',axis=1)
+print(dataset)
+
+dataset["gender"] = dataset["gender"].astype('category')
+dataset["ssc_b"] = dataset["ssc_b"].astype('category')
+dataset["hsc_b"] = dataset["hsc_b"].astype('category')
+dataset["degree_t"] = dataset["degree_t"].astype('category')
+dataset["workex"] = dataset["workex"].astype('category')
+dataset["specialisation"] = dataset["specialisation"].astype('category')
+dataset["status"] = dataset["status"].astype('category')
+dataset["hsc_s"] = dataset["hsc_s"].astype('category')
+print(dataset.dtypes)
+
+dataset["gender"] = dataset["gender"].cat.codes
+dataset["ssc_b"] = dataset["ssc_b"].cat.codes
+dataset["hsc_b"] = dataset["hsc_b"].cat.codes
+dataset["degree_t"] = dataset["degree_t"].cat.codes
+dataset["workex"] = dataset["workex"].cat.codes
+dataset["specialisation"] = dataset["specialisation"].cat.codes
+dataset["status"] = dataset["status"].cat.codes
+dataset["hsc_s"] = dataset["hsc_s"].cat.codes
+
+print(dataset)
+
+X = dataset.iloc[:,:-1].values
+Y = dataset.iloc[:,-1].values
+#Initialize the model parameters
+theta = np.random.randn(X.shape[1])
+y = Y
+#Define the sigmoid function:
+def sigmoid(z):
+    return 1 / (1+np.exp(-z))
+# define the loss function:
+def loss(theta,X,y):
+    h = sigmoid(X.dot(theta))
+    return -np.sum(y * np.log(h) + (1 - y) * np.log(1 - h))
+
+#define the gradient descent algorithms
+def gradient_descent(theta,X,y,alpha,num_iterations):
+    m = len(y)
+    for i in range(num_iterations):
+        h = sigmoid(X.dot(theta))
+        gradient = X.T.dot(h - y)/m
+        theta -= alpha*gradient
+    return theta
+
+#train the model:
+theta = gradient_descent(theta,X,y,alpha = 0.01,num_iterations = 1000)
+
+# make predictions:
+def predict(theta,X):
+    h = sigmoid(X.dot(theta))
+    y_pred = np.where(h >= 0.5,1,0)
+    return y_pred
+
+y_pred = predict(theta,X)
+print(y_pred)
+
+Accuracy = np.mean(y_pred.flatten()==y)
+print("Accuracy: ",Accuracy)
+```
+## output:
+
+### dataset:
+![image](https://github.com/vikamuhan-reddy/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144928933/4d81269f-3b76-4c9f-b739-fedfa2bce5b8)
+
+### dataset.dtypes:
+![image](https://github.com/vikamuhan-reddy/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144928933/aba75df7-8384-46a4-8569-b57784f00c4f)
+
+### dataset after catcodes:
+![image](https://github.com/vikamuhan-reddy/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144928933/34b8ca4f-99e2-495d-9e02-534b26fb18f3)
+
+### Accuracy:
+![image](https://github.com/vikamuhan-reddy/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144928933/f83af9e4-a26c-4c0e-96ac-40e67fedb68e)
+
+### y_predicted value:
+![image](https://github.com/vikamuhan-reddy/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/144928933/04a9f737-8c06-4b75-87ce-322e17f01598)
 
 
 ## Result:
